@@ -3,11 +3,11 @@ import cors from "cors";
 import dnsRoutes from "./routes/domain";
 import userRoutes from "./routes/user";
 import dnsRecordsRoutes from "./routes/dns-records";
-
+import bodyParser from "body-parser";
 
 const app = express();
 const PORT = process.env.PORT || 7002;
-
+app.use(bodyParser.json());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(

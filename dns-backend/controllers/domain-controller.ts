@@ -1,5 +1,9 @@
 import { CreateHostedZoneCommand, DeleteHostedZoneCommand, ListHostedZonesCommand } from "@aws-sdk/client-route-53";
 import client from "../utils/aws-config"
+import { bulkDomainUpdate } from "../services/domain-service";
+import { createObjectCsvWriter } from "csv-writer";
+import fs from 'fs';
+
 
 export const listDomains = async (req: any, res: any) => {
   try {
@@ -51,3 +55,33 @@ export const deleteHostedZone = async (req: any, res: any) => {
     return res.status(500).json("Error deleting hosted zone:", error);
   }
 };
+
+export const bulkDomainUpload = async (req: any, res: any) => {
+  if (!req.file) {
+    return res.status(400).send('No file uploaded.');
+  }
+  const file = req.file;
+  const args = { file };
+  try {
+    const importData = await bulkDomainUpdate({args});
+
+    // Assume importData is an array of objects
+    const csvWriter = createObjectCsvWriter({
+      path: 'importData.csv',
+      header: [
+        { id: 'column1', title: 'Column 1' }, 
+        { id: 'column2', title: 'Column 2' } // Adjust headers according to your importData structure
+      ],
+    });
+    await csvWriter.writeRecords(importData);
+
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', 'attachment; filename=importData.csv');
+
+    const fileStream = fs.createReadStream('importData.csv');
+    fileStream.pipe(res);
+  } catch (error) {
+    console.error('Error processing file:', error);
+    res.status(500).json({ error: 'Error processing file' });
+  }
+}
