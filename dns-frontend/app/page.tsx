@@ -2,6 +2,7 @@
 import DomainPopup from "@/components/DomainPopup";
 import Navbar from "@/components/Navbar";
 import { useEffect, useMemo, useState } from "react";
+import { Suspense } from 'react'
 import {
     createDomain, 
     listDomains,
@@ -20,7 +21,7 @@ export default function Home() {
     const [isBulkDNSOpen, setIsBulkDNSOpen] = useState(false)
     const [search, setSearch] = useState("");
     return (
-        <>
+        <Suspense>
             <main className="bg-white text-black">
                 <Navbar isPopupOpen={isPopupOpen} setIsPopupOpen={setIsPopupOpen} setSearch={setSearch} />
                 <div className="rounded-lg overflow-hidden bg-white shadow-lg">
@@ -70,6 +71,6 @@ export default function Home() {
                     <DomainPopup createDomain={createDomain} setIsPopupOpen={setIsPopupOpen} />
                 )}
             </main>
-        </>
+        </Suspense>
     );
 }

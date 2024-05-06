@@ -1,6 +1,5 @@
 "use client"
-import { useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
     listHostedZones,
     createDNSRecord,
@@ -10,11 +9,12 @@ import {
 import CreateDNSRecordPopup from "@/components/DnsPopup";
 import Navbar from "@/components/Navbar";
 const TABLE_HEAD = ["Domain Name", "Type", "Value", ""];
+export const dynamic = 'force-dynamic'
+// @ts-ignore
 const Records = () => {
+    const [code, setCode] = useState<string | null>('');
+  const [title, setTitle] = useState<string | null>('');
     const [isPopupOpen, setIsPopupOpen] = useState(false)
-    const router = useSearchParams();
-    const code = router.get("code");
-    const title = router.get("title");
     const [dnsRecords, setDNSRecords] = useState([]);
     const [recordToUpdate, setRecordToUpdate] = useState(null);
     const fetchDNSRecords = useCallback(async () => {
@@ -28,7 +28,11 @@ const Records = () => {
 
     useMemo(() => {
         fetchDNSRecords();
-
+        if (typeof window !== 'undefined') {
+            const searchParams = new URLSearchParams(window.location.search);
+            setCode(searchParams.get('code'));
+            setTitle(searchParams.get('title'));
+        }
     }, [fetchDNSRecords]);
 
     const handleCreateOrUpdateDNSRecord = async ({ recordData, ttl }: any) => {
@@ -57,6 +61,7 @@ const Records = () => {
     };
     return (
         <>
+        
             <div>
                 <nav className="bg-black p-4">
                     <div className="container mx-auto flex justify-between items-center">
@@ -149,6 +154,5 @@ const Records = () => {
         </>
     );
 }
-
 
 export default Records;
